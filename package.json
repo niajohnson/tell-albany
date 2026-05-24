@@ -1,0 +1,12 @@
+{
+  "name": "ny-health-act-contact-helper",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A constituent contact helper for the New York Health Act.",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>NY Health Act Contact Helper</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <section class="intro" aria-labelledby="title">
+        <p class="eyebrow">New York Health Act action helper</p>
+        <h1 id="title">Tell Albany: New Yorkers need universal health care.</h1>
+        <p class="lede">
+          Too many New Yorkers delay care, stay in jobs for insurance, or avoid treatment because health care is too expensive and too hard to access. A universal plan would make care simpler, more humane, and easier to get.
+        </p>
+      </section>
+
+      <section class="tool" aria-label="Contact helper">
+        <form id="lookup-form" class="lookup">
+          <label>
+            <span>Address</span>
+            <div class="address-combobox">
+              <input
+                id="address"
+                name="address"
+                autocomplete="off"
+                placeholder="123 Main St, Albany, NY 12207"
+                aria-autocomplete="list"
+                aria-controls="address-suggestions"
+                aria-expanded="false"
+                required
+              />
+              <div id="address-suggestions" class="suggestions" role="listbox" hidden></div>
+            </div>
+          </label>
+          <label>
+            <span>Your name</span>
+            <input id="sender-name" name="name" autocomplete="name" placeholder="Optional" />
+          </label>
+          <button id="lookup-button" type="submit">
+            <span class="button-icon" aria-hidden="true">→</span>
+            Find and draft
+          </button>
+        </form>
+
+        <div id="status" class="status" role="status" aria-live="polite"></div>
+
+        <section id="result" class="result" hidden>
+          <div class="rep-line">
+            <div>
+              <p class="label">Assembly member</p>
+              <h2 id="rep-name"></h2>
+              <div class="rep-status">
+                <span id="support-badge" class="support-badge"></span>
+              </div>
+              <dl class="rep-details">
+                <div class="detail-grid">
+                  <div class="detail-row">
+                    <dt>District</dt>
+                    <dd id="district-meta"></dd>
+                  </div>
+                  <div class="detail-row">
+                    <dt>Email</dt>
+                    <dd><a id="email-meta" href="#"></a></dd>
+                  </div>
+                  <div class="detail-row">
+                    <dt>Phone</dt>
+                    <dd><a id="phone-meta" href="#"></a></dd>
+                  </div>
+                </div>
+              </dl>
+            </div>
+            <div class="rep-corner">
+              <div class="detail-row matched-address-row">
+                <dt>Matched address</dt>
+                <dd id="matched-address"></dd>
+              </div>
+              <p id="support-checked" class="support-checked"></p>
+            </div>
+          </div>
+
+          <label class="subject-field">
+            <span>Subject</span>
+            <input id="subject" />
+          </label>
+
+          <label class="draft-field">
+            <span>Email draft</span>
+            <textarea id="draft" spellcheck="true"></textarea>
+          </label>
+
+          <div class="actions">
+            <button id="regenerate-button" type="button">Regenerate draft</button>
+            <button id="copy-button" type="button">Copy draft</button>
+            <a id="mailto-button" class="primary-action" href="#">Open email app</a>
+          </div>
+
+          <div class="desktop-email-options" aria-label="Desktop email options">
+            <span>Open in</span>
+            <a id="gmail-button" class="provider-link provider-gmail" href="#" target="_blank" rel="noreferrer">
+              <span aria-hidden="true">M</span>
+              Gmail
+            </a>
+            <a id="outlook-button" class="provider-link provider-outlook" href="#" target="_blank" rel="noreferrer">
+              <span aria-hidden="true">O</span>
+              Outlook
+            </a>
+            <a id="yahoo-button" class="provider-link provider-yahoo" href="#" target="_blank" rel="noreferrer">
+              <span aria-hidden="true">Y!</span>
+              Yahoo
+            </a>
+          </div>
+
+          <p class="fine-print">
+            This opens your device's mail app or email service. Review the draft before sending.
+          </p>
+
+          <div id="call-line" class="call-line" hidden>
+            <div>
+              <p class="label">Follow-up call</p>
+              <p id="call-script"></p>
+              <a id="call-button" class="call-action" href="#">Call office</a>
+            </div>
+          </div>
+
+          <div class="learn-more">
+            <div class="learn-intro">
+              <p class="label">Learn more</p>
+              <h3>What A1466 would do</h3>
+              <p>
+                The New York Health Act would create New York Health, a universal single-payer plan for comprehensive health coverage across the state.
+              </p>
+            </div>
+
+            <div class="fact-list" aria-label="Basic facts about A1466">
+              <p><strong>Covers:</strong> medical care, long-term care, prescriptions, dental, vision, hearing, mental health, and more.</p>
+              <p><strong>Removes:</strong> deductibles, co-pays, and network restrictions.</p>
+              <p><strong>Applies to:</strong> every New York resident, regardless of age, income, employment, or other status.</p>
+            </div>
+
+            <div class="faq-block">
+              <h3>Frequently asked questions</h3>
+              <p class="faq-intro">A few quick answers about what the New York Health Act would change and why your message matters.</p>
+              <div class="question-list" aria-label="Common questions">
+                <details>
+                  <summary>Would people still choose their doctors?</summary>
+                  <p>Yes. The bill is designed to let people choose their care providers without being blocked by private insurance networks. That means fewer “is this doctor covered?” worries when you need care.</p>
+                </details>
+                <details>
+                  <summary>How would it be funded?</summary>
+                  <p>Instead of premiums, deductibles, and co-pays, New York Health would be publicly funded. The bill calls for financing based on ability to pay, along with available federal health care funds.</p>
+                </details>
+                <details>
+                  <summary>What would change for patients?</summary>
+                  <p>People could get care based on what they need, not what their insurance plan approves. The bill includes comprehensive benefits like hospital care, primary care, prescriptions, dental, vision, hearing, mental health, and long-term care.</p>
+                </details>
+                <details>
+                  <summary>Where is the bill now?</summary>
+                  <p>A1466 is not up for a full Assembly vote yet. The Assembly currently lists it in the Health Committee, which is why it matters for constituents like you to ask your Assembly member to help advance it.</p>
+                </details>
+                <details>
+                  <summary>Why call after sending an email?</summary>
+                  <p>Email puts your message in writing. A short phone call helps make sure the office hears that this is a live constituent priority, especially while the bill needs pressure to move forward.</p>
+                </details>
+                <details>
+                  <summary>I have insurance. Why should I support this bill?</summary>
+                  <p>Even people with insurance can face high deductibles, surprise costs, narrow networks, or coverage changes when they switch jobs. The bill is meant to make coverage stable and simpler for everyone in New York.</p>
+                </details>
+                <details>
+                  <summary>Where can I learn more?</summary>
+                  <p>
+                    Read the <a id="bill-link" href="https://nyassembly.gov/leg/?Actions=Y&amp;Memo=Y&amp;Summary=Y&amp;bn=A01466&amp;default_fld=&amp;leg_video=&amp;term=2025" target="_blank" rel="noreferrer">official Assembly bill page</a>,
+                    check the <a id="source-link" href="https://nyassembly.gov/mem/email/" target="_blank" rel="noreferrer">Assembly contact list</a>,
+                    or use Campaign for New York Health's <a href="https://www.nyhcampaign.org/aboutnyha" target="_blank" rel="noreferrer">explainer</a>,
+                    <a href="https://www.nyhcampaign.org/faqs" target="_blank" rel="noreferrer">FAQ</a>, and
+                    <a href="https://nyhcampaign.ourpowerbase.net/civicrm/petition/sign?sid=1" target="_blank" rel="noreferrer">petition</a>.
+                  </p>
+                </details>
+              </div>
+            </div>
+
+          </div>
+        </section>
+      </section>
+    </main>
+
+    <script src="/app.js"></script>
+  </body>
+</html>
