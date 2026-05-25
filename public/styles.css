@@ -8,6 +8,7 @@
   --green: #1f7a52;
   --blue: #1d5f91;
   --red: #a73b32;
+  --gold: #8a610f;
   --shadow: 0 18px 50px rgba(28, 38, 34, 0.12);
 }
 
@@ -390,9 +391,9 @@ button:disabled {
 }
 
 .role-badge[data-role="leadership"] {
-  border-color: rgba(167, 59, 50, 0.24);
-  color: var(--red);
-  background: rgba(167, 59, 50, 0.08);
+  border-color: rgba(138, 97, 15, 0.28);
+  color: var(--gold);
+  background: rgba(138, 97, 15, 0.1);
 }
 
 .support-checked {
