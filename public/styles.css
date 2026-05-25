@@ -390,9 +390,9 @@ button:disabled {
 }
 
 .role-badge[data-role="leadership"] {
-  border-color: rgba(31, 122, 82, 0.24);
-  color: var(--green);
-  background: rgba(31, 122, 82, 0.08);
+  border-color: rgba(167, 59, 50, 0.24);
+  color: var(--red);
+  background: rgba(167, 59, 50, 0.08);
 }
 
 .support-checked {
