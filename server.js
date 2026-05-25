@@ -730,7 +730,7 @@ function makeDraft({ member, district, matchedAddress, status, roles, bill, send
   ]);
   const why = pick([
     "New Yorkers should be able to get care without worrying that a job loss, premium increase, or medical bill will put treatment out of reach.",
-    "Health care should not depend on where someone works, how much they earn, their age, disability, or immigration status.",
+    "Health care should not depend on where someone works, how much they earn, their age, or whether they can afford a private plan.",
     "Too many people delay care because of cost, confusing coverage rules, or fear of medical debt. New York can do better.",
     "A universal health care program would make it easier for people to get the care they need and reduce the stress of navigating private insurance.",
   ]);
