@@ -251,13 +251,13 @@ function supporterBadgeCopy(status) {
 }
 
 function callAskCopy(askType) {
-  if (askType === "leadership-health-supporter") return "move A1466 out of Health Committee and prioritize it for a floor vote";
-  if (askType === "leadership-health") return "co-sponsor A1466, move it out of Health Committee, and prioritize it for a floor vote";
-  if (askType === "leadership-supporter") return "prioritize A1466 for committee movement and a floor vote";
-  if (askType === "leadership") return "co-sponsor A1466 and prioritize it for committee movement and a floor vote";
-  if (askType === "health-supporter") return "move A1466 out of the Assembly Health Committee this session";
-  if (askType === "health") return "co-sponsor A1466 and move it out of the Assembly Health Committee this session";
-  if (askType === "supporter") return "push for A1466 to be placed on the Health Committee agenda before June 10";
+  if (askType === "leadership-health-supporter") return "move A1466 out of Health Committee and prioritize it for a floor vote, because committee action while session days remain would help keep the bill moving";
+  if (askType === "leadership-health") return "co-sponsor A1466, move it out of Health Committee, and prioritize it for a floor vote, because committee action while session days remain would help keep the bill moving";
+  if (askType === "leadership-supporter") return "prioritize A1466 for committee movement and a floor vote, because committee action while session days remain would help keep the bill moving";
+  if (askType === "leadership") return "co-sponsor A1466 and prioritize it for committee movement and a floor vote, because committee action while session days remain would help keep the bill moving";
+  if (askType === "health-supporter") return "move A1466 out of the Assembly Health Committee, because committee action while session days remain would help keep the bill moving";
+  if (askType === "health") return "co-sponsor A1466 and move it out of the Assembly Health Committee, because committee action while session days remain would help keep the bill moving";
+  if (askType === "supporter") return "push for A1466 to be placed on the Health Committee agenda while session days remain, because getting on the agenda is a needed step before the bill can move toward a vote";
   return "co-sponsor A1466 and publicly support the bill";
 }
 

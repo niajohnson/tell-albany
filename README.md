@@ -25,7 +25,7 @@ The app does not send messages automatically. The person using it reviews and se
 The draft changes based on the matched Assembly member:
 
 - If they are not listed as a supporter, the ask is to co-sponsor and publicly support A1466.
-- If they are already listed as a supporter, the ask is to push for A1466 to be placed on the Health Committee agenda before June 10.
+- If they are already listed as a supporter, the ask is to push for A1466 to be placed on the Health Committee agenda while session days remain.
 - If they are on the Assembly Health Committee, the ask is to move A1466 out of committee this session.
 - If they are in Assembly leadership, the ask is to prioritize the bill for committee movement and a floor vote.
 
