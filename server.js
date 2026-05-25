@@ -423,32 +423,112 @@ function memberRoleInfo(member, healthCommittee, leadership) {
   return roles;
 }
 
-function askTypeFor({ status, roles }) {
-  if (roles.some((role) => role.type === "leadership")) return "leadership";
-  if (roles.some((role) => role.type === "health-committee")) return "health-committee";
-  if (status === "listed" || status === "likely-listed") return "supporter";
+function roleFlags({ status, roles }) {
+  return {
+    isSupporter: status === "listed" || status === "likely-listed",
+    isLeadership: roles.some((role) => role.type === "leadership"),
+    isHealthCommittee: roles.some((role) => role.type === "health-committee"),
+  };
+}
+
+function askTypeFor(context) {
+  const { isSupporter, isLeadership, isHealthCommittee } = roleFlags(context);
+  if (isLeadership && isHealthCommittee && isSupporter) return "leadership-health-supporter";
+  if (isLeadership && isHealthCommittee) return "leadership-health";
+  if (isLeadership && isSupporter) return "leadership-supporter";
+  if (isLeadership) return "leadership";
+  if (isHealthCommittee && isSupporter) return "health-supporter";
+  if (isHealthCommittee) return "health";
+  if (isSupporter) return "supporter";
   return "cosponsor";
 }
 
 function askCopy(askType) {
   const copies = {
-    leadership: {
+    "leadership-health-supporter": {
+      support: [
+        "Thank you for supporting A1466 and for your leadership in the Assembly and on the Health Committee.",
+        "I appreciate that you are listed in support of A1466 and that you hold leadership and Health Committee roles.",
+        "I was glad to see your name listed in support of A1466, especially given your leadership and Health Committee roles.",
+      ],
       email: [
-        "Please prioritize A1466 for committee movement and a floor vote this session.",
-        "Please use your leadership role to prioritize A1466 for committee movement and a floor vote.",
-        "Please help make A1466 a priority for committee movement and a floor vote this session.",
+        "Please use those roles to prioritize A1466 for committee movement, move it out of Health Committee, and advance it toward a floor vote this session.",
+        "Please help move A1466 out of Health Committee and prioritize it for a floor vote this session.",
+        "Please use your support and leadership to move A1466 through Health Committee and toward a floor vote.",
+      ],
+      call: "move A1466 out of Health Committee and prioritize it for a floor vote",
+    },
+    "leadership-health": {
+      support: [
+        "Because you hold leadership and Health Committee roles, you have a direct role in whether A1466 moves.",
+        "Your leadership and Health Committee roles make your action especially important.",
+        "As both an Assembly leader and a Health Committee member, you can help determine whether A1466 advances.",
+      ],
+      email: [
+        "Please co-sponsor A1466, move it out of Health Committee, and prioritize it for a floor vote this session.",
+        "Please publicly support A1466 and use your roles to move it out of Health Committee and toward a floor vote.",
+        "Please sign on to A1466 and help move it through Health Committee and onto the Assembly floor.",
+      ],
+      call: "co-sponsor A1466, move it out of Health Committee, and prioritize it for a floor vote",
+    },
+    "leadership-supporter": {
+      support: [
+        "Thank you for supporting A1466 and for your leadership in the Assembly.",
+        "I appreciate that you are listed in support of A1466 and that you hold an Assembly leadership role.",
+        "I was glad to see your name listed in support of A1466, especially given your leadership role.",
+      ],
+      email: [
+        "Please use your leadership role to prioritize A1466 for committee movement and a floor vote this session.",
+        "Please turn that support into action by prioritizing A1466 for committee movement and a floor vote.",
+        "Please help make A1466 a leadership priority for committee movement and a floor vote this session.",
       ],
       call: "prioritize A1466 for committee movement and a floor vote",
     },
-    "health-committee": {
+    leadership: {
+      support: [
+        "Because you hold an Assembly leadership role, your action is especially important.",
+        "As an Assembly leader, you can help determine whether A1466 moves this session.",
+        "Your leadership role gives you a real opportunity to help advance A1466.",
+      ],
       email: [
-        "Please help move A1466 out of the Assembly Health Committee this session.",
-        "Please use your role on the Health Committee to move A1466 out of committee this session.",
-        "Please push for A1466 to move out of the Assembly Health Committee this session.",
+        "Please co-sponsor A1466 and prioritize it for committee movement and a floor vote this session.",
+        "Please publicly support A1466 and use your leadership role to move it toward a floor vote.",
+        "Please sign on to A1466 and help make it a priority for committee movement and a floor vote.",
+      ],
+      call: "co-sponsor A1466 and prioritize it for committee movement and a floor vote",
+    },
+    "health-supporter": {
+      support: [
+        "Thank you for supporting A1466 and serving on the Assembly Health Committee.",
+        "I appreciate that you are listed in support of A1466 and that you serve on the Health Committee.",
+        "I was glad to see your name listed in support of A1466, especially because you are on the Health Committee.",
+      ],
+      email: [
+        "Please use that role to move A1466 out of the Health Committee this session.",
+        "Please turn that support into action by moving A1466 out of Health Committee this session.",
+        "Please help make sure A1466 moves out of Health Committee this session.",
       ],
       call: "move A1466 out of the Assembly Health Committee this session",
     },
+    health: {
+      support: [
+        "Because you serve on the Assembly Health Committee, your action is especially important.",
+        "As a Health Committee member, you have a direct role in whether A1466 advances.",
+        "Your Health Committee role gives you a clear opportunity to help move A1466.",
+      ],
+      email: [
+        "Please co-sponsor A1466 and help move it out of the Health Committee this session.",
+        "Please publicly support A1466 and move it out of Health Committee this session.",
+        "Please sign on to A1466 and help advance it out of the Assembly Health Committee.",
+      ],
+      call: "co-sponsor A1466 and move it out of the Assembly Health Committee this session",
+    },
     supporter: {
+      support: [
+        "Thank you for being listed as a supporter.",
+        "I appreciate that you are listed in support of A1466.",
+        "I was glad to see your name listed in support of the bill.",
+      ],
       email: [
         "Please actively push for A1466 to be placed on the Health Committee agenda before June 10.",
         "Please use your support to press for A1466 to be put on the Health Committee agenda before June 10.",
@@ -457,6 +537,11 @@ function askCopy(askType) {
       call: "push for A1466 to be placed on the Health Committee agenda before June 10",
     },
     cosponsor: {
+      support: [
+        "I am asking you to support it.",
+        "Please stand with New Yorkers who need universal health care.",
+        "Please help move this bill forward.",
+      ],
       email: [
         "Please co-sponsor A1466 and publicly support the bill.",
         "Please add your name as a co-sponsor of A1466.",
@@ -633,26 +718,16 @@ function readableBillStatus(status) {
 }
 
 function makeDraft({ member, district, matchedAddress, status, roles, bill, senderName }) {
-  const isSupporter = status === "listed" || status === "likely-listed";
   const askType = askTypeFor({ status, roles });
+  const copy = askCopy(askType);
   const billStatus = readableBillStatus(bill.status);
-  const askLine = pick(askCopy(askType).email);
+  const supportLine = pick(copy.support);
+  const askLine = pick(copy.email);
   const opening = pick([
     `I live in Assembly District ${district}, and I am writing about the New York Health Act (A1466).`,
     `I am a constituent in Assembly District ${district}, and I want to see the New York Health Act (A1466) move forward this session.`,
     `As someone in Assembly District ${district}, I am asking you to help advance the New York Health Act (A1466).`,
   ]);
-  const supportLine = isSupporter
-    ? pick([
-        "Thank you for being listed as a supporter.",
-        "I appreciate that you are listed in support of A1466.",
-        "I was glad to see your name listed in support of the bill.",
-      ])
-    : pick([
-        "I am asking you to support it.",
-        "Please stand with New Yorkers who need universal health care.",
-        "Please help move this bill forward.",
-      ]);
   const why = pick([
     "New Yorkers should be able to get care without worrying that a job loss, premium increase, or medical bill will put treatment out of reach.",
     "Health care should not depend on where someone works, how much they earn, their age, disability, or immigration status.",

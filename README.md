@@ -24,6 +24,8 @@ The draft changes based on the matched Assembly member:
 - If they are on the Assembly Health Committee, the ask is to move A1466 out of committee this session.
 - If they are in Assembly leadership, the ask is to prioritize the bill for committee movement and a floor vote.
 
+When a member has more than one status or role, the draft combines the relevant asks. For example, a non-supporter on the Health Committee is asked to co-sponsor A1466 and move it out of committee, while a supporter in leadership is thanked for their support and asked to prioritize committee movement and a floor vote.
+
 The page also shows role badges for Health Committee members and Assembly leadership. If a member has more than one role, badges are stacked with the highest-priority role first.
 
 ## Run it
