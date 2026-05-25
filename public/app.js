@@ -38,6 +38,21 @@ function setStatus(message, type = "") {
   statusBox.dataset.type = type;
 }
 
+function trackMetric(event) {
+  const body = JSON.stringify({ event });
+  if (navigator.sendBeacon) {
+    navigator.sendBeacon("/api/metric-event", new Blob([body], { type: "application/json" }));
+    return;
+  }
+
+  fetch("/api/metric-event", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body,
+    keepalive: true,
+  }).catch(() => {});
+}
+
 function rebuildMailto() {
   const to = encodeURIComponent(currentEmail);
   const subject = encodeURIComponent(subjectInput.value);
@@ -289,6 +304,12 @@ function callAskCopy(askType) {
 subjectInput.addEventListener("input", rebuildMailto);
 draftInput.addEventListener("input", rebuildMailto);
 
+mailtoButton.addEventListener("click", () => trackMetric("email_app_opened"));
+gmailButton.addEventListener("click", () => trackMetric("email_app_opened"));
+outlookButton.addEventListener("click", () => trackMetric("email_app_opened"));
+yahooButton.addEventListener("click", () => trackMetric("email_app_opened"));
+callButton.addEventListener("click", () => trackMetric("call_button_clicked"));
+
 regenerateButton.addEventListener("click", () => {
   form.requestSubmit();
 });
@@ -297,6 +318,7 @@ copyButton.addEventListener("click", async () => {
   const callLineText = currentPhone ? `\n\nFollow-up call: ${currentPhone}` : "";
   const text = `To: ${currentEmail}\nSubject: ${subjectInput.value}\n\n${draftInput.value}${callLineText}`;
   await navigator.clipboard.writeText(text);
+  trackMetric("email_draft_copied");
   copyButton.textContent = "Copied";
   setTimeout(() => {
     copyButton.textContent = "Copy draft";

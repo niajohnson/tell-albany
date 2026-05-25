@@ -32,6 +32,7 @@ const MAX_VERIFIED_SUGGESTIONS = 6;
 const RATE_LIMITS = {
   lookup: { limit: 30, windowMs: 60 * 1000 },
   suggest: { limit: 120, windowMs: 60 * 1000 },
+  metric: { limit: 240, windowMs: 60 * 1000 },
 };
 
 let contactsCache;
@@ -47,6 +48,9 @@ let metricsWriteQueue = Promise.resolve();
 const metrics = {
   pageVisits: 0,
   lookupsCompleted: 0,
+  emailDraftsCopied: 0,
+  emailAppsOpened: 0,
+  callButtonsClicked: 0,
   startedAt: new Date().toISOString(),
   updatedAt: null,
 };
@@ -74,6 +78,9 @@ async function loadMetrics() {
     const stored = JSON.parse(await fs.readFile(METRICS_FILE, "utf8"));
     metrics.pageVisits = Number(stored.pageVisits) || 0;
     metrics.lookupsCompleted = Number(stored.lookupsCompleted) || 0;
+    metrics.emailDraftsCopied = Number(stored.emailDraftsCopied) || 0;
+    metrics.emailAppsOpened = Number(stored.emailAppsOpened) || 0;
+    metrics.callButtonsClicked = Number(stored.callButtonsClicked) || 0;
     metrics.startedAt = stored.startedAt || metrics.startedAt;
     metrics.updatedAt = stored.updatedAt || null;
   } catch (error) {
@@ -112,6 +119,9 @@ async function metricsSnapshot() {
   return {
     pageVisits: metrics.pageVisits,
     lookupsCompleted: metrics.lookupsCompleted,
+    emailDraftsCopied: metrics.emailDraftsCopied,
+    emailAppsOpened: metrics.emailAppsOpened,
+    callButtonsClicked: metrics.callButtonsClicked,
     startedAt: metrics.startedAt,
     updatedAt: metrics.updatedAt,
     privacy: "Aggregate counters only. No names, addresses, IPs, or per-person history are stored.",
@@ -1013,6 +1023,31 @@ async function handleSuggest(req, res, url) {
   sendJson(res, 200, { suggestions });
 }
 
+async function handleMetricEvent(req, res) {
+  const limit = checkRateLimit(req, "metric");
+  if (!limit.allowed) return sendRateLimit(res, limit.retryAfterSeconds);
+
+  if (req.method !== "POST") return sendJson(res, 405, { error: "Use POST for metric events." });
+
+  let body = "";
+  for await (const chunk of req) {
+    body += chunk;
+    if (body.length > 1024) return sendJson(res, 413, { error: "Metric event is too large." });
+  }
+
+  const event = JSON.parse(body || "{}").event;
+  const eventMap = {
+    email_draft_copied: "emailDraftsCopied",
+    email_app_opened: "emailAppsOpened",
+    call_button_clicked: "callButtonsClicked",
+  };
+  const metricName = eventMap[event];
+  if (!metricName) return sendJson(res, 400, { error: "Unknown metric event." });
+
+  await recordMetric(metricName);
+  sendJson(res, 200, { ok: true });
+}
+
 async function serveStatic(req, res, url) {
   const shouldCountPageVisit = req.method === "GET" && (url.pathname === "/" || url.pathname === "/index.html");
   let filePath = path.normalize(decodeURIComponent(url.pathname));
@@ -1043,6 +1078,7 @@ const server = http.createServer(async (req, res) => {
       if (!canViewMetrics(req, url)) return sendJson(res, 401, { error: "Metrics token required." });
       return sendJson(res, 200, await metricsSnapshot());
     }
+    if (url.pathname === "/api/metric-event") return await handleMetricEvent(req, res);
     if (url.pathname === "/api/suggest") return await handleSuggest(req, res, url);
     if (url.pathname === "/api/lookup") return await handleLookup(req, res, url);
     return await serveStatic(req, res, url);

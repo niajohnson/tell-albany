@@ -63,10 +63,13 @@ The tool never sends the email automatically. It creates a draft and leaves revi
 
 ## Privacy-friendly metrics
 
-The app stores two aggregate counters:
+The app stores aggregate counters for:
 
 - `pageVisits`: successful visits to `/` or `/index.html`.
 - `lookupsCompleted`: successful address lookups that return an Assembly member and draft.
+- `emailDraftsCopied`: clicks on the copy draft button.
+- `emailAppsOpened`: clicks on the mail app, Gmail, Outlook, or Yahoo compose links.
+- `callButtonsClicked`: clicks on the call office button.
 
 Metrics are stored in `data/metrics.json` by default and can be read at:
 
