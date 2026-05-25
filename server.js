@@ -553,6 +553,20 @@ function askCopy(askType) {
   return copies[askType] || copies.cosponsor;
 }
 
+function subjectForAskType(askType) {
+  const subjects = {
+    "leadership-health-supporter": "Please move A1466 out of committee and toward a floor vote",
+    "leadership-health": "Please co-sponsor and move A1466 out of committee",
+    "leadership-supporter": "Please prioritize A1466 for committee movement",
+    leadership: "Please co-sponsor and prioritize A1466",
+    "health-supporter": "Please move A1466 out of the Health Committee",
+    health: "Please co-sponsor and move A1466 out of Health Committee",
+    supporter: "Please help move A1466 through Health Committee",
+    cosponsor: "Please co-sponsor and support A1466",
+  };
+  return subjects[askType] || subjects.cosponsor;
+}
+
 function findLowerDistrict(geographies) {
   const entries = Object.entries(geographies || {});
   const lowerEntry = entries.find(([key]) => key.toLowerCase().includes("state legislative districts - lower"));
@@ -788,7 +802,7 @@ async function handleLookup(req, res, url) {
   const roles = memberRoleInfo(member, healthCommittee, leadership);
   const askType = askTypeFor({ status, roles });
   const phoneInfo = await getMemberPhoneInfo(member);
-  const subject = "Please advance the New York Health Act (A1466)";
+  const subject = subjectForAskType(askType);
   const body = makeDraft({
     member,
     district: districtResult.district,
