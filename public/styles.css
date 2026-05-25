@@ -613,16 +613,18 @@ button:disabled {
   color: var(--muted);
   font-size: 0.84rem;
   line-height: 1.5;
+  text-align: center;
 }
 
 .site-footer p {
   max-width: 42rem;
-  margin: 0 0 10px;
+  margin: 0 auto 10px;
 }
 
 .site-footer nav {
   display: flex;
   flex-wrap: wrap;
+  justify-content: center;
   gap: 10px 16px;
 }
 
