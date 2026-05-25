@@ -537,7 +537,7 @@ button:disabled {
 }
 
 .provider-outlook {
-  --provider-icon: url("https://cdn.jsdelivr.net/npm/simple-icons@v16/icons/microsoftoutlook.svg");
+  --provider-icon: url("https://cdn.jsdelivr.net/npm/simple-icons@5.0.0/icons/microsoftoutlook.svg");
   border-color: rgba(0, 120, 212, 0.28);
   color: #0b5cab;
   background: #f4f9ff;
@@ -548,7 +548,7 @@ button:disabled {
 }
 
 .provider-yahoo {
-  --provider-icon: url("https://cdn.jsdelivr.net/npm/simple-icons@v16/icons/yahoo.svg");
+  --provider-icon: url("https://cdn.jsdelivr.net/npm/simple-icons@5.24.0/icons/yahoo.svg");
   border-color: rgba(96, 1, 210, 0.28);
   color: #5f01d1;
   background: #fbf7ff;
