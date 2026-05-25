@@ -1,17 +1,22 @@
-# NY Health Act Contact Helper
+# Tell Albany
 
-A small local web app for drafting constituent emails about the New York Health Act, A01466/A1466.
+A small web app for helping New Yorkers find their State Assembly member and draft a constituent message about the New York Health Act, A01466/A1466.
 
 ## What it does
 
 - Takes a New York address.
-- Suggests New York addresses while the user types.
+- Suggests real New York addresses while the user types.
 - Uses the U.S. Census geocoder to find the State Assembly district.
 - Fetches the official New York Assembly email list to find the Assembly member and public email address.
 - Fetches the member's official Assembly contact page to find an office phone number.
 - Fetches the official Assembly bill page for A01466 to check the current action and sponsor/co-sponsor listing.
 - Fetches official Assembly Health Committee and Assembly leadership pages so the ask can match the member's role.
-- Creates an editable email draft, opens it in the sender's own email app with a `mailto:` link, offers desktop compose links for Gmail, Outlook, and Yahoo, and provides a follow-up call prompt.
+- Creates an editable email draft with rotating plain-language variations so messages do not all sound identical.
+- Opens the draft in the sender's own email app with a `mailto:` link.
+- Shows branded Gmail, Outlook, and Yahoo compose links on desktop.
+- Provides a matching follow-up call prompt and phone button when an office number is available.
+- Includes rate limiting and user-facing error states for address lookup and official-source failures.
+- Includes a Learn More/FAQ section with plain-language context and source links.
 
 The app does not send messages automatically. The person using it reviews and sends the email themselves.
 
@@ -24,9 +29,28 @@ The draft changes based on the matched Assembly member:
 - If they are on the Assembly Health Committee, the ask is to move A1466 out of committee this session.
 - If they are in Assembly leadership, the ask is to prioritize the bill for committee movement and a floor vote.
 
-When a member has more than one status or role, the draft combines the relevant asks. For example, a non-supporter on the Health Committee is asked to co-sponsor A1466 and move it out of committee, while a supporter in leadership is thanked for their support and asked to prioritize committee movement and a floor vote.
+When a member has more than one status or role, the draft and follow-up call script combine the relevant asks. For example, a non-supporter on the Health Committee is asked to co-sponsor A1466 and move it out of committee, while a supporter in leadership is thanked for their support and asked to prioritize committee movement and a floor vote.
 
-The page also shows role badges for Health Committee members and Assembly leadership. If a member has more than one role, badges are stacked with the highest-priority role first.
+The page also shows compact role badges for Health Committee members and Assembly leadership. If a member has more than one role, badges are stacked with the highest-priority role first. The visible badges stay short, such as `Leadership`, `Health Chair`, and `Health Committee`, while the full official role remains available as the badge label.
+
+## User flow
+
+1. The user enters their name and New York address.
+2. Address suggestions appear after a few characters so the user can choose a real match.
+3. The app finds the Assembly district and shows the matched Assembly member.
+4. The app shows supporter status, any Health Committee or leadership badges, the matched address, district, email, and phone number.
+5. The user reviews and edits the generated email draft.
+6. The user opens the draft in their email app or, on desktop, chooses Gmail, Outlook, or Yahoo.
+7. After sending, the user can use the follow-up call script and call button.
+
+## Production notes
+
+- The public site is intended to run at `https://tellalbany.org`.
+- Render serves the Node app and handles the production deploy.
+- The apex domain should point to Render with an `A` record for `@`.
+- The `www` subdomain should point to the Render service with a `CNAME`.
+- Render should have both `tellalbany.org` and `www.tellalbany.org` added as custom domains, with `www` redirecting to the apex domain.
+- Certificates can take time to issue after DNS verifies.
 
 ## Run it
 

@@ -53,7 +53,15 @@ function renderRoleBadges(roles = []) {
     const badge = document.createElement("span");
     badge.className = "role-badge";
     badge.dataset.role = role.type;
-    badge.textContent = role.title ? `${role.label}: ${role.title}` : role.label;
+    const visibleLabel = role.type === "leadership"
+      ? "Leadership"
+      : role.title === "Health Committee Chair"
+        ? "Health Chair"
+        : "Health Committee";
+    const fullLabel = role.title ? `${role.label}: ${role.title}` : role.label;
+    badge.textContent = visibleLabel;
+    badge.title = fullLabel;
+    badge.setAttribute("aria-label", fullLabel);
     roleBadges.append(badge);
   }
 }

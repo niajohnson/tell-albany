@@ -386,6 +386,7 @@ button:disabled {
   font-size: 0.76rem;
   font-weight: 850;
   text-align: right;
+  white-space: nowrap;
 }
 
 .role-badge[data-role="leadership"] {
