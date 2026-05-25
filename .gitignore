@@ -2,3 +2,6 @@ node_modules/
 .DS_Store
 *.log
 *.png
+!public/favicon.png
+!public/assets/
+!public/assets/*.png
