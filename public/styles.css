@@ -397,11 +397,29 @@ button:disabled {
 
 .support-checked {
   margin: -3px 0 0;
-  color: var(--muted);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--green);
   font-size: 0.76rem;
   font-weight: 750;
   text-align: right;
   order: 0;
+}
+
+.support-checked::before {
+  content: "✓";
+  width: 16px;
+  height: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  border-radius: 999px;
+  background: rgba(31, 122, 82, 0.12);
+  color: var(--green);
+  font-size: 0.68rem;
+  font-weight: 950;
 }
 
 .matched-address-row {
@@ -511,6 +529,10 @@ button:disabled {
   letter-spacing: 0;
 }
 
+.faq-block h3 {
+  margin-bottom: 2px;
+}
+
 .learn-intro p,
 .fact-list p,
 .faq-intro,
@@ -532,11 +554,11 @@ button:disabled {
 .faq-block {
   margin-top: 10px;
   display: grid;
-  gap: 6px;
+  gap: 4px;
 }
 
 .faq-block .question-list {
-  margin-top: 8px;
+  margin-top: 12px;
 }
 
 .question-list {
@@ -562,6 +584,10 @@ button:disabled {
 
 .question-list details[open] summary {
   margin-bottom: 12px;
+}
+
+.question-list p + p {
+  margin-top: 10px;
 }
 
 .question-list a {
@@ -626,6 +652,7 @@ button:disabled {
   .support-checked {
     order: 1;
     margin: -2px 0 0;
+    justify-self: end;
     text-align: right;
   }
 
