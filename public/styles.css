@@ -31,7 +31,7 @@ body {
 .shell {
   width: min(760px, calc(100% - 32px));
   margin: 0 auto;
-  padding: 48px 0;
+  padding: 48px 0 26px;
   display: grid;
   gap: 28px;
   align-items: start;
@@ -606,9 +606,36 @@ button:disabled {
   text-underline-offset: 3px;
 }
 
+.site-footer {
+  width: min(760px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 0 0 42px;
+  color: var(--muted);
+  font-size: 0.84rem;
+  line-height: 1.5;
+}
+
+.site-footer p {
+  max-width: 42rem;
+  margin: 0 0 10px;
+}
+
+.site-footer nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 16px;
+}
+
+.site-footer a {
+  color: var(--blue);
+  font-weight: 800;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
 @media (max-width: 820px) {
   .shell {
-    padding: 28px 0;
+    padding: 28px 0 22px;
   }
 
   .tool {
