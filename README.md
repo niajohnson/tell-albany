@@ -14,7 +14,7 @@ A small web app for helping New Yorkers find their State Assembly member and dra
 - Checks the New York State Board of Elections `Who Filed` report for a candidate-specific `Running in 2026` badge and campaign website when the matched Assembly member appears in the 2026 Assembly filing data.
 - Creates an editable email draft with rotating plain-language variations so messages do not all sound identical.
 - Opens the draft in the sender's own email app with a `mailto:` link.
-- Shows branded Gmail, Outlook, and Yahoo compose links on desktop.
+- Shows branded Gmail, Outlook, and Yahoo compose links with Simple Icons-powered provider icons on desktop.
 - Provides a matching follow-up call prompt and phone button when an office number is available.
 - Lets visitors share the site through a visible URL field, copy link button, native share sheet, Simple Icons-powered social and messaging links, and a text-message link.
 - Includes rate limiting and user-facing error states for address lookup and official-source failures.

@@ -512,12 +512,21 @@ button:disabled {
   justify-content: center;
   border-radius: 6px;
   color: #fff;
-  font-size: 0.72rem;
-  font-weight: 950;
-  line-height: 1;
+  font-size: 0;
+}
+
+.provider-link span::before {
+  content: "";
+  width: 15px;
+  height: 15px;
+  display: block;
+  background: currentColor;
+  mask: var(--provider-icon) center / contain no-repeat;
+  -webkit-mask: var(--provider-icon) center / contain no-repeat;
 }
 
 .provider-gmail {
+  --provider-icon: url("https://cdn.jsdelivr.net/npm/simple-icons@v16/icons/gmail.svg");
   border-color: rgba(197, 34, 31, 0.28);
   color: #b3261e;
   background: #fff8f7;
@@ -528,6 +537,7 @@ button:disabled {
 }
 
 .provider-outlook {
+  --provider-icon: url("https://cdn.jsdelivr.net/npm/simple-icons@v16/icons/microsoftoutlook.svg");
   border-color: rgba(0, 120, 212, 0.28);
   color: #0b5cab;
   background: #f4f9ff;
@@ -538,6 +548,7 @@ button:disabled {
 }
 
 .provider-yahoo {
+  --provider-icon: url("https://cdn.jsdelivr.net/npm/simple-icons@v16/icons/yahoo.svg");
   border-color: rgba(96, 1, 210, 0.28);
   color: #5f01d1;
   background: #fbf7ff;
