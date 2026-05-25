@@ -332,6 +332,14 @@ button:disabled {
   gap: 10px;
 }
 
+.rep-line:has(.role-badges .role-badge) .rep-corner {
+  top: 96px;
+}
+
+.rep-line:has(.role-badges .role-badge:nth-child(2)) .rep-corner {
+  top: 130px;
+}
+
 .support-badge {
   min-height: 30px;
   display: inline-flex;
@@ -357,6 +365,33 @@ button:disabled {
   border-color: rgba(29, 95, 145, 0.24);
   color: var(--blue);
   background: rgba(29, 95, 145, 0.08);
+}
+
+.role-badges {
+  display: grid;
+  gap: 6px;
+  justify-items: end;
+}
+
+.role-badge {
+  min-height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  border: 1px solid rgba(29, 95, 145, 0.24);
+  padding: 0 10px;
+  color: var(--blue);
+  background: rgba(29, 95, 145, 0.08);
+  font-size: 0.76rem;
+  font-weight: 850;
+  text-align: right;
+}
+
+.role-badge[data-role="leadership"] {
+  border-color: rgba(31, 122, 82, 0.24);
+  color: var(--green);
+  background: rgba(31, 122, 82, 0.08);
 }
 
 .support-checked {
@@ -569,6 +604,14 @@ button:disabled {
   .rep-status {
     justify-items: start;
     margin: 2px 0 12px;
+  }
+
+  .role-badges {
+    justify-items: start;
+  }
+
+  .role-badge {
+    text-align: left;
   }
 
   .rep-corner {

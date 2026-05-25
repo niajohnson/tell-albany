@@ -9,6 +9,8 @@ const PUBLIC_DIR = path.join(__dirname, "public");
 
 const ASSEMBLY_EMAIL_URL = "https://nyassembly.gov/mem/email/";
 const BILL_URL = "https://nyassembly.gov/leg/?Actions=Y&Memo=Y&Summary=Y&bn=A01466&default_fld=&leg_video=&term=2025";
+const HEALTH_COMMITTEE_URL = "https://www.nyassembly.gov/comm/?id=19&sec=mem";
+const ASSEMBLY_LEADERSHIP_URL = "https://www.assembly.ny.gov/mem/leadership/";
 const CENSUS_URL = "https://geocoding.geo.census.gov/geocoder/geographies/onelineaddress";
 const ADDRESS_SUGGEST_URL = "https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/suggest";
 const NY_SEARCH_EXTENT = "-79.7624,40.4774,-71.7517,45.0153";
@@ -30,6 +32,8 @@ const RATE_LIMITS = {
 
 let contactsCache;
 let billCache;
+let healthCommitteeCache;
+let leadershipCache;
 const phoneCache = new Map();
 const suggestionCache = new Map();
 const rateLimitBuckets = new Map();
@@ -191,6 +195,77 @@ function parseAssemblyContacts(html) {
   return contacts;
 }
 
+function parseHealthCommittee(html) {
+  const text = stripTags(html);
+  const section = text.match(/Chair\s+(.+?)\s+(?:News|Reports|Hearings|Assembly Home|$)/i)?.[1] || text;
+  const entries = [];
+  const memberPattern = /([A-Z][A-Za-z .'-]+?)\s+District\s+(\d{1,3})\s+([A-Za-z0-9._%+-]+@nyassembly\.gov)/g;
+  let match;
+
+  while ((match = memberPattern.exec(section))) {
+    const name = match[1].replace(/\s+/g, " ").trim();
+    if (!name || entries.some((entry) => nameKey(entry.name) === nameKey(name))) continue;
+    entries.push({
+      name,
+      district: String(Number(match[2])),
+      email: match[3],
+      title: entries.length === 0 ? "Health Committee Chair" : "Health Committee member",
+    });
+  }
+
+  return entries;
+}
+
+function parseAssemblyLeadership(html) {
+  const text = stripTags(html);
+  const titles = [
+    "Speaker",
+    "Majority Leader",
+    "Chair, Ways and Means Committee",
+    "Deputy Speaker",
+    "Assistant Speaker",
+    "Speaker Pro Tempore",
+    "Chair, Committee on Standing Committees",
+    "Assistant Speaker Pro Tempore",
+    "Deputy Majority Leader",
+    "Assistant Majority Leader",
+    "Majority Whip",
+    "Deputy Majority Whip",
+    "Assistant Majority Whip",
+    "Chair, Majority Conference",
+    "Vice-Chair, Majority Conference",
+    "Chair, Majority Steering",
+    "Vice-Chair, Majority Steering",
+    "Chair, Majority House Operations",
+    "Minority Leader",
+    "Minority Leader Pro Tempore",
+    "Deputy Minority Leader",
+    "Assistant Minority Leader",
+    "Minority Whip",
+    "Deputy Minority Whip",
+    "Assistant Minority Whip",
+  ];
+  const titlePattern = [...titles]
+    .sort((a, b) => b.length - a.length)
+    .map((title) => title.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
+    .join("|");
+  const entryPattern = new RegExp(`(${titlePattern})\\s+([A-Z][A-Za-z .'-]+?)\\s+[^@]{0,900}?([A-Za-z0-9._%+-]+@nyassembly\\.gov)`, "g");
+  const entries = [];
+  let match;
+
+  while ((match = entryPattern.exec(text))) {
+    const name = match[2].replace(/\s+/g, " ").trim();
+    if (!name || entries.some((entry) => nameKey(entry.name) === nameKey(name))) continue;
+    entries.push({
+      title: match[1],
+      name,
+      email: match[3],
+    });
+  }
+
+  return entries;
+}
+
 function parsePhoneInfo(html) {
   const text = stripTags(html);
   const phonePattern = /(?:\+?1[-.\s]?)?\(?\d{3}\)?[-.\s]\d{3}[-.\s]\d{4}/g;
@@ -287,6 +362,110 @@ async function getBillInfo() {
   const info = parseBillInfo(await response.text());
   billCache = { fetchedAt: Date.now(), info };
   return info;
+}
+
+async function getHealthCommittee() {
+  if (healthCommitteeCache && Date.now() - healthCommitteeCache.fetchedAt < 1000 * 60 * 60 * 12) {
+    return healthCommitteeCache.members;
+  }
+
+  const response = await fetch(HEALTH_COMMITTEE_URL, {
+    headers: { "user-agent": "NY Health Act constituent contact helper" },
+  });
+  if (!response.ok) throw new Error(`Health Committee page returned ${response.status}`);
+
+  const members = parseHealthCommittee(await response.text());
+  if (members.length < 10) throw new Error("Could not parse enough Health Committee members.");
+
+  healthCommitteeCache = { fetchedAt: Date.now(), members };
+  return members;
+}
+
+async function getAssemblyLeadership() {
+  if (leadershipCache && Date.now() - leadershipCache.fetchedAt < 1000 * 60 * 60 * 12) {
+    return leadershipCache.members;
+  }
+
+  const response = await fetch(ASSEMBLY_LEADERSHIP_URL, {
+    headers: { "user-agent": "NY Health Act constituent contact helper" },
+  });
+  if (!response.ok) throw new Error(`Assembly leadership page returned ${response.status}`);
+
+  const members = parseAssemblyLeadership(await response.text());
+  if (members.length < 5) throw new Error("Could not parse enough Assembly leadership members.");
+
+  leadershipCache = { fetchedAt: Date.now(), members };
+  return members;
+}
+
+function memberRoleInfo(member, healthCommittee, leadership) {
+  const memberKey = nameKey(member.name);
+  const healthRole = healthCommittee.find((entry) => nameKey(entry.name) === memberKey || entry.email.toLowerCase() === member.email.toLowerCase());
+  const leadershipRole = leadership.find((entry) => nameKey(entry.name) === memberKey || entry.email.toLowerCase() === member.email.toLowerCase());
+  const roles = [];
+
+  if (leadershipRole) {
+    roles.push({
+      type: "leadership",
+      label: "Assembly leadership",
+      title: leadershipRole.title,
+    });
+  }
+
+  if (healthRole) {
+    roles.push({
+      type: "health-committee",
+      label: healthRole.title === "Health Committee Chair" ? "Health Committee chair" : "Health Committee",
+      title: healthRole.title,
+    });
+  }
+
+  return roles;
+}
+
+function askTypeFor({ status, roles }) {
+  if (roles.some((role) => role.type === "leadership")) return "leadership";
+  if (roles.some((role) => role.type === "health-committee")) return "health-committee";
+  if (status === "listed" || status === "likely-listed") return "supporter";
+  return "cosponsor";
+}
+
+function askCopy(askType) {
+  const copies = {
+    leadership: {
+      email: [
+        "Please prioritize A1466 for committee movement and a floor vote this session.",
+        "Please use your leadership role to prioritize A1466 for committee movement and a floor vote.",
+        "Please help make A1466 a priority for committee movement and a floor vote this session.",
+      ],
+      call: "prioritize A1466 for committee movement and a floor vote",
+    },
+    "health-committee": {
+      email: [
+        "Please help move A1466 out of the Assembly Health Committee this session.",
+        "Please use your role on the Health Committee to move A1466 out of committee this session.",
+        "Please push for A1466 to move out of the Assembly Health Committee this session.",
+      ],
+      call: "move A1466 out of the Assembly Health Committee this session",
+    },
+    supporter: {
+      email: [
+        "Please actively push for A1466 to be placed on the Health Committee agenda before June 10.",
+        "Please use your support to press for A1466 to be put on the Health Committee agenda before June 10.",
+        "Please help make sure A1466 is placed on the Health Committee agenda before June 10.",
+      ],
+      call: "push for A1466 to be placed on the Health Committee agenda before June 10",
+    },
+    cosponsor: {
+      email: [
+        "Please co-sponsor A1466 and publicly support the bill.",
+        "Please add your name as a co-sponsor of A1466.",
+        "Please sign on as a co-sponsor and publicly support A1466.",
+      ],
+      call: "co-sponsor A1466 and publicly support the bill",
+    },
+  };
+  return copies[askType] || copies.cosponsor;
 }
 
 function findLowerDistrict(geographies) {
@@ -453,9 +632,11 @@ function readableBillStatus(status) {
   return `The Assembly currently lists A1466 as referred to the Health Committee as of ${formattedDate}.`;
 }
 
-function makeDraft({ member, district, matchedAddress, status, bill, senderName }) {
+function makeDraft({ member, district, matchedAddress, status, roles, bill, senderName }) {
   const isSupporter = status === "listed" || status === "likely-listed";
+  const askType = askTypeFor({ status, roles });
   const billStatus = readableBillStatus(bill.status);
+  const askLine = pick(askCopy(askType).email);
   const opening = pick([
     `I live in Assembly District ${district}, and I am writing about the New York Health Act (A1466).`,
     `I am a constituent in Assembly District ${district}, and I want to see the New York Health Act (A1466) move forward this session.`,
@@ -468,9 +649,9 @@ function makeDraft({ member, district, matchedAddress, status, bill, senderName 
         "I was glad to see your name listed in support of the bill.",
       ])
     : pick([
-        "Please co-sponsor and publicly support it.",
-        "I am asking you to add your name as a co-sponsor.",
-        "Please sign on in support of the bill and help move it forward.",
+        "I am asking you to support it.",
+        "Please stand with New Yorkers who need universal health care.",
+        "Please help move this bill forward.",
       ]);
   const why = pick([
     "New Yorkers should be able to get care without worrying that a job loss, premium increase, or medical bill will put treatment out of reach.",
@@ -478,17 +659,6 @@ function makeDraft({ member, district, matchedAddress, status, bill, senderName 
     "Too many people delay care because of cost, confusing coverage rules, or fear of medical debt. New York can do better.",
     "A universal health care program would make it easier for people to get the care they need and reduce the stress of navigating private insurance.",
   ]);
-  const ask = isSupporter
-    ? pick([
-        "Please help move A1466 forward by urging Assembly leadership and the Health Committee to advance it.",
-        "Please use your support to push for the bill to move out of committee.",
-        "Please keep pressing Assembly leadership and the Health Committee so A1466 can move this session.",
-      ])
-    : pick([
-        "Please sign on as a co-sponsor and urge Assembly leadership and the Health Committee to advance it.",
-        "Please publicly support A1466 and help push for movement in the Assembly Health Committee.",
-        "Please co-sponsor the bill and work with your colleagues to bring it closer to a vote.",
-      ]);
   const closing = pick([
     "Please let me know what steps you will take to help A1466 move forward.",
     "I would appreciate a reply letting me know where you stand and what you will do next.",
@@ -502,7 +672,7 @@ function makeDraft({ member, district, matchedAddress, status, bill, senderName 
     "",
     why,
     "",
-    `${billStatus} ${ask}`,
+    `${billStatus} ${askLine}`,
     "",
     closing,
     "",
@@ -522,10 +692,12 @@ async function handleLookup(req, res, url) {
   const senderName = url.searchParams.get("name")?.trim();
   if (!address) return sendJson(res, 400, { error: "Enter a New York address." });
 
-  const [districtResult, contacts, bill] = await Promise.all([
+  const [districtResult, contacts, bill, healthCommittee, leadership] = await Promise.all([
     lookupDistrict(address),
     getAssemblyContacts(),
     getBillInfo(),
+    getHealthCommittee(),
+    getAssemblyLeadership(),
   ]);
 
   if (districtResult.error) return sendJson(res, 404, districtResult);
@@ -538,6 +710,8 @@ async function handleLookup(req, res, url) {
   }
 
   const status = supporterStatus(member, bill.supporters);
+  const roles = memberRoleInfo(member, healthCommittee, leadership);
+  const askType = askTypeFor({ status, roles });
   const phoneInfo = await getMemberPhoneInfo(member);
   const subject = "Please advance the New York Health Act (A1466)";
   const body = makeDraft({
@@ -545,6 +719,7 @@ async function handleLookup(req, res, url) {
     district: districtResult.district,
     matchedAddress: districtResult.matchedAddress,
     status,
+    roles,
     bill,
     senderName,
   });
@@ -559,12 +734,16 @@ async function handleLookup(req, res, url) {
     },
     bill,
     supporterStatus: status,
+    roles,
+    askType,
     subject,
     body,
     mailto: `mailto:${encodeURIComponent(member.email)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`,
     sources: {
       assemblyContacts: ASSEMBLY_EMAIL_URL,
       bill: BILL_URL,
+      healthCommittee: HEALTH_COMMITTEE_URL,
+      leadership: ASSEMBLY_LEADERSHIP_URL,
       district: "https://geocoding.geo.census.gov/",
     },
   });

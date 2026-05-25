@@ -10,6 +10,7 @@ const districtMeta = document.querySelector("#district-meta");
 const emailMeta = document.querySelector("#email-meta");
 const phoneMeta = document.querySelector("#phone-meta");
 const supportBadge = document.querySelector("#support-badge");
+const roleBadges = document.querySelector("#role-badges");
 const supportChecked = document.querySelector("#support-checked");
 const callLine = document.querySelector("#call-line");
 const callScript = document.querySelector("#call-script");
@@ -44,6 +45,17 @@ function rebuildMailto() {
   gmailButton.href = `https://mail.google.com/mail/?view=cm&fs=1&to=${to}&su=${subject}&body=${body}`;
   outlookButton.href = `https://outlook.live.com/mail/0/deeplink/compose?to=${to}&subject=${subject}&body=${body}`;
   yahooButton.href = `https://compose.mail.yahoo.com/?to=${to}&subject=${subject}&body=${body}`;
+}
+
+function renderRoleBadges(roles = []) {
+  roleBadges.innerHTML = "";
+  for (const role of roles) {
+    const badge = document.createElement("span");
+    badge.className = "role-badge";
+    badge.dataset.role = role.type;
+    badge.textContent = role.title ? `${role.label}: ${role.title}` : role.label;
+    roleBadges.append(badge);
+  }
 }
 
 function phoneHref(phone) {
@@ -201,13 +213,14 @@ form.addEventListener("submit", async (event) => {
     phoneMeta.href = currentPhone ? phoneHref(currentPhone) : "#";
     supportBadge.textContent = supporterBadgeCopy(data.supporterStatus);
     supportBadge.dataset.status = data.supporterStatus;
+    renderRoleBadges(data.roles);
     const checkedDate = formatCheckedDate(data.bill?.checkedAt);
     supportChecked.textContent = checkedDate ? `Support list checked ${checkedDate}` : "Support list checked from official bill page";
     callLine.hidden = !currentPhone;
     if (currentPhone) {
       callButton.href = phoneHref(currentPhone);
       callButton.textContent = `Call ${currentPhone}`;
-      callScript.textContent = `After sending, call and say: “Hi, my name is ${data.senderName || "[your name]"}, I live in Assembly District ${data.district}, and I’m calling to ask Assemblymember ${data.member.name} to help advance the New York Health Act, A1466.”`;
+      callScript.textContent = `After sending, call and say: “Hi, my name is ${data.senderName || "[your name]"}, I live in Assembly District ${data.district}, and I’m calling to ask Assemblymember ${data.member.name} to ${callAskCopy(data.askType)}.”`;
     }
     subjectInput.value = data.subject;
     draftInput.value = data.body;
@@ -227,6 +240,13 @@ function supporterBadgeCopy(status) {
   if (status === "listed") return "A1466 supporter";
   if (status === "likely-listed") return "Likely A1466 supporter";
   return "Not listed as supporter";
+}
+
+function callAskCopy(askType) {
+  if (askType === "leadership") return "prioritize A1466 for committee movement and a floor vote";
+  if (askType === "health-committee") return "move A1466 out of the Assembly Health Committee this session";
+  if (askType === "supporter") return "push for A1466 to be placed on the Health Committee agenda before June 10";
+  return "co-sponsor A1466 and publicly support the bill";
 }
 
 subjectInput.addEventListener("input", rebuildMailto);
