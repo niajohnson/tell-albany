@@ -16,6 +16,7 @@ A small web app for helping New Yorkers find their State Assembly member and dra
 - Opens the draft in the sender's own email app with a `mailto:` link.
 - Shows branded Gmail, Outlook, and Yahoo compose links on desktop.
 - Provides a matching follow-up call prompt and phone button when an office number is available.
+- Lets visitors share the site through a visible URL field, copy link button, native share sheet, Simple Icons-powered social and messaging links, and a text-message link.
 - Includes rate limiting and user-facing error states for address lookup and official-source failures.
 - Tracks privacy-friendly aggregate metrics for page visits and completed address lookups.
 - Includes an always-visible Learn More/FAQ section with plain-language context, source links, and Campaign for New York Health resources.
@@ -58,6 +59,7 @@ The FAQ is written to be plain-language, fact-based, and aligned with the existi
 5. The user reviews and edits the generated email draft.
 6. The user opens the draft in their email app or, on desktop, chooses Gmail, Outlook, or Yahoo.
 7. After sending, the user can use the follow-up call script and call button.
+8. The user can share Tell Albany with someone else through the share card, copy-link control, social links, or text link.
 
 The tool never sends the email automatically. It creates a draft and leaves review, editing, and sending to the user.
 
@@ -150,3 +152,4 @@ HOST=0.0.0.0
 - Campaign for New York Health: `https://www.nyhcampaign.org/`
 - District lookup: `https://geocoding.geo.census.gov/`
 - Address suggestions: `https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/suggest`
+- Social sharing icons: `https://simpleicons.org/` via jsDelivr-hosted SVG masks.

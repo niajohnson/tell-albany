@@ -72,7 +72,8 @@ h1 {
 }
 
 .tool,
-.learn-more {
+.learn-more,
+.share-site {
   background: var(--panel);
   border: 1px solid var(--line);
   border-radius: 8px;
@@ -643,6 +644,153 @@ button:disabled {
   text-underline-offset: 3px;
 }
 
+.share-site {
+  display: grid;
+  gap: 16px;
+}
+
+.share-site h3 {
+  margin: 0 0 8px;
+  font-size: 1.18rem;
+  letter-spacing: 0;
+}
+
+.share-site .label {
+  margin-bottom: 8px;
+}
+
+.share-copy {
+  max-width: 42rem;
+}
+
+.share-copy p:not(.label) {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.share-url-field {
+  gap: 8px;
+}
+
+.share-url-field input {
+  color: var(--blue);
+  background: #fbfcfb;
+  font-weight: 750;
+}
+
+.share-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.share-icon-button,
+.share-link {
+  width: 42px;
+  height: 42px;
+  min-height: 42px;
+  padding: 0;
+}
+
+.share-icon-button {
+  border-color: var(--line);
+  background: #fff;
+  color: var(--ink);
+}
+
+.share-native,
+.share-link {
+  border-color: var(--blue);
+  background: var(--blue);
+  color: #fff;
+}
+
+.share-icon-button svg,
+.share-link svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.share-link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  font-weight: 850;
+  text-decoration: none;
+}
+
+.share-link span {
+  display: none;
+}
+
+.share-link:not(.share-sms)::before {
+  content: "";
+  width: 20px;
+  height: 20px;
+  display: block;
+  background: currentColor;
+  mask: var(--share-icon) center / contain no-repeat;
+  -webkit-mask: var(--share-icon) center / contain no-repeat;
+}
+
+.share-x {
+  --share-icon: url("https://cdn.jsdelivr.net/npm/simple-icons@v16/icons/x.svg");
+  border-color: #111;
+  background: #111;
+}
+
+.share-facebook {
+  --share-icon: url("https://cdn.jsdelivr.net/npm/simple-icons@v16/icons/facebook.svg");
+  border-color: #1877f2;
+  background: #1877f2;
+}
+
+.share-bluesky {
+  --share-icon: url("https://cdn.jsdelivr.net/npm/simple-icons@v16/icons/bluesky.svg");
+  border-color: #1185fe;
+  background: #1185fe;
+}
+
+.share-whatsapp {
+  --share-icon: url("https://cdn.jsdelivr.net/npm/simple-icons@v16/icons/whatsapp.svg");
+  border-color: #1f7a52;
+  background: #1f7a52;
+}
+
+.share-signal {
+  --share-icon: url("https://cdn.jsdelivr.net/npm/simple-icons@v16/icons/signal.svg");
+  border-color: #3a76f0;
+  background: #3a76f0;
+}
+
+.share-telegram {
+  --share-icon: url("https://cdn.jsdelivr.net/npm/simple-icons@v16/icons/telegram.svg");
+  border-color: #26a5e4;
+  background: #26a5e4;
+}
+
+.share-sms {
+  border-color: #5a6764;
+  background: #5a6764;
+}
+
+.share-status {
+  min-height: 1.2em;
+  margin: -4px 0 0;
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 750;
+}
+
 .site-footer {
   width: min(760px, calc(100% - 32px));
   margin: 0 auto;
@@ -682,6 +830,10 @@ button:disabled {
   }
 
   .learn-more {
+    padding: 18px;
+  }
+
+  .share-site {
     padding: 18px;
   }
 

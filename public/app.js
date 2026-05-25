@@ -25,6 +25,17 @@ const outlookButton = document.querySelector("#outlook-button");
 const yahooButton = document.querySelector("#yahoo-button");
 const regenerateButton = document.querySelector("#regenerate-button");
 const copyButton = document.querySelector("#copy-button");
+const shareButton = document.querySelector("#share-button");
+const copySiteLinkButton = document.querySelector("#copy-site-link-button");
+const shareUrlInput = document.querySelector("#share-url");
+const shareXButton = document.querySelector("#share-x-button");
+const shareFacebookButton = document.querySelector("#share-facebook-button");
+const shareBlueskyButton = document.querySelector("#share-bluesky-button");
+const shareWhatsappButton = document.querySelector("#share-whatsapp-button");
+const shareSignalButton = document.querySelector("#share-signal-button");
+const shareTelegramButton = document.querySelector("#share-telegram-button");
+const shareSmsButton = document.querySelector("#share-sms-button");
+const shareStatus = document.querySelector("#share-status");
 
 let currentEmail = "";
 let currentPhone = "";
@@ -36,6 +47,32 @@ let suggestionTimer;
 function setStatus(message, type = "") {
   statusBox.textContent = message;
   statusBox.dataset.type = type;
+}
+
+function siteUrl() {
+  if (location.hostname === "tellalbany.org" || location.hostname === "www.tellalbany.org") return "https://tellalbany.org/";
+  return location.origin + location.pathname;
+}
+
+function shareText() {
+  return "Find your NY Assembly member and send the right ask on the New York Health Act.";
+}
+
+function setShareStatus(message) {
+  shareStatus.textContent = message;
+}
+
+function setShareLinks() {
+  const url = siteUrl();
+  const text = shareText();
+  shareUrlInput.value = url;
+  shareXButton.href = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`;
+  shareFacebookButton.href = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
+  shareBlueskyButton.href = `https://bsky.app/intent/compose?text=${encodeURIComponent(`${text} ${url}`)}`;
+  shareWhatsappButton.href = `https://wa.me/?text=${encodeURIComponent(`${text} ${url}`)}`;
+  shareSignalButton.href = `signal://send?text=${encodeURIComponent(`${text} ${url}`)}`;
+  shareTelegramButton.href = `https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`;
+  shareSmsButton.href = `sms:?&body=${encodeURIComponent(`${text} ${url}`)}`;
 }
 
 function trackMetric(event) {
@@ -51,6 +88,14 @@ function trackMetric(event) {
     body,
     keepalive: true,
   }).catch(() => {});
+}
+
+async function copySiteLink() {
+  await navigator.clipboard.writeText(siteUrl());
+  setShareStatus("Link copied.");
+  setTimeout(() => {
+    setShareStatus("");
+  }, 1600);
 }
 
 function rebuildMailto() {
@@ -309,6 +354,31 @@ gmailButton.addEventListener("click", () => trackMetric("email_app_opened"));
 outlookButton.addEventListener("click", () => trackMetric("email_app_opened"));
 yahooButton.addEventListener("click", () => trackMetric("email_app_opened"));
 callButton.addEventListener("click", () => trackMetric("call_button_clicked"));
+
+shareButton.addEventListener("click", async () => {
+  const shareData = {
+    title: "Tell Albany",
+    text: shareText(),
+    url: siteUrl(),
+  };
+
+  if (navigator.share && (!navigator.canShare || navigator.canShare(shareData))) {
+    try {
+      await navigator.share(shareData);
+      setShareStatus("Thanks for sharing.");
+      return;
+    } catch (error) {
+      if (error.name === "AbortError") return;
+    }
+  }
+
+  await copySiteLink();
+});
+
+copySiteLinkButton.addEventListener("click", copySiteLink);
+shareUrlInput.addEventListener("focus", () => shareUrlInput.select());
+shareUrlInput.addEventListener("click", () => shareUrlInput.select());
+setShareLinks();
 
 regenerateButton.addEventListener("click", () => {
   form.requestSubmit();

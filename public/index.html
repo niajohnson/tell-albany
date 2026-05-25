@@ -155,6 +155,59 @@
         </section>
       </section>
 
+      <section class="share-site" aria-labelledby="share-title">
+        <div class="share-copy">
+          <p class="label">Spread the word</p>
+          <h3 id="share-title">Help another New Yorker send the right ask.</h3>
+          <p>Send this tool to someone who wants universal health care for New Yorkers and needs a fast way to contact their Assembly member.</p>
+        </div>
+        <label class="share-url-field">
+          <span>Site URL</span>
+          <input id="share-url" readonly />
+        </label>
+        <div class="share-actions" aria-label="Share options">
+          <button id="copy-site-link-button" class="share-icon-button share-copy-link" type="button" aria-label="Copy link" title="Copy link">
+            <svg aria-hidden="true" viewBox="0 0 24 24">
+              <path d="M10 13a5 5 0 0 0 7.1 0l2.1-2.1a5 5 0 0 0-7.1-7.1l-1.2 1.2" />
+              <path d="M14 11a5 5 0 0 0-7.1 0l-2.1 2.1a5 5 0 0 0 7.1 7.1l1.2-1.2" />
+            </svg>
+          </button>
+          <button id="share-button" class="share-icon-button share-native" type="button" aria-label="Share site" title="Share site">
+            <svg aria-hidden="true" viewBox="0 0 24 24">
+              <circle cx="18" cy="5" r="3" />
+              <circle cx="6" cy="12" r="3" />
+              <circle cx="18" cy="19" r="3" />
+              <path d="m8.6 10.6 6.8-4.2" />
+              <path d="m8.6 13.4 6.8 4.2" />
+            </svg>
+          </button>
+          <a id="share-x-button" class="share-link share-x" href="#" target="_blank" rel="noreferrer" aria-label="Share on X" title="Share on X">
+            <span aria-hidden="true">X</span>
+          </a>
+          <a id="share-facebook-button" class="share-link share-facebook" href="#" target="_blank" rel="noreferrer" aria-label="Share on Facebook" title="Share on Facebook">
+            <span aria-hidden="true">f</span>
+          </a>
+          <a id="share-bluesky-button" class="share-link share-bluesky" href="#" target="_blank" rel="noreferrer" aria-label="Share on Bluesky" title="Share on Bluesky">
+            <span aria-hidden="true">B</span>
+          </a>
+          <a id="share-whatsapp-button" class="share-link share-whatsapp" href="#" target="_blank" rel="noreferrer" aria-label="Share on WhatsApp" title="Share on WhatsApp">
+            <span aria-hidden="true">W</span>
+          </a>
+          <a id="share-signal-button" class="share-link share-signal" href="#" aria-label="Share on Signal" title="Share on Signal">
+            <span aria-hidden="true">Signal</span>
+          </a>
+          <a id="share-telegram-button" class="share-link share-telegram" href="#" target="_blank" rel="noreferrer" aria-label="Share on Telegram" title="Share on Telegram">
+            <span aria-hidden="true">Telegram</span>
+          </a>
+          <a id="share-sms-button" class="share-link share-sms" href="#" aria-label="Share by text message" title="Share by text message">
+            <svg aria-hidden="true" viewBox="0 0 24 24">
+              <path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z" />
+            </svg>
+          </a>
+        </div>
+        <p id="share-status" class="share-status" role="status" aria-live="polite"></p>
+      </section>
+
       <section class="learn-more" aria-labelledby="learn-title">
         <div class="learn-intro">
           <p class="label">Learn more</p>
@@ -249,6 +302,7 @@
           </div>
         </div>
       </section>
+
     </main>
 
     <footer class="site-footer" aria-label="Site information">
