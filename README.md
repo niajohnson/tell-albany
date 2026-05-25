@@ -17,6 +17,7 @@ A small web app for helping New Yorkers find their State Assembly member and dra
 - Shows branded Gmail, Outlook, and Yahoo compose links on desktop.
 - Provides a matching follow-up call prompt and phone button when an office number is available.
 - Includes rate limiting and user-facing error states for address lookup and official-source failures.
+- Tracks privacy-friendly aggregate metrics for page visits and completed address lookups.
 - Includes an always-visible Learn More/FAQ section with plain-language context, source links, and Campaign for New York Health resources.
 - Includes basic SEO and social sharing metadata for the public site.
 - Includes an independent footer identifying the project as an open-source constituent contact helper.
@@ -60,6 +61,23 @@ The FAQ is written to be plain-language, fact-based, and aligned with the existi
 
 The tool never sends the email automatically. It creates a draft and leaves review, editing, and sending to the user.
 
+## Privacy-friendly metrics
+
+The app stores two aggregate counters:
+
+- `pageVisits`: successful visits to `/` or `/index.html`.
+- `lookupsCompleted`: successful address lookups that return an Assembly member and draft.
+
+Metrics are stored in `data/metrics.json` by default and can be read at:
+
+```text
+/api/metrics
+```
+
+The metrics file does not store names, addresses, IPs, user agents, or per-person history. To protect the metrics endpoint, set a `METRICS_TOKEN` environment variable and read metrics with either `?token=...` or an `Authorization: Bearer ...` header. To change where metrics are stored, set `METRICS_FILE`.
+
+On hosts with an ephemeral filesystem, these counters can reset after deploys, restarts, or instance replacements unless `METRICS_FILE` points to persistent storage.
+
 ## Production notes
 
 - The public site is intended to run at `https://tellalbany.org`.
@@ -100,6 +118,8 @@ This app needs a Node host because address lookup, Assembly contact lookup, bill
 4. After deploy, open the public Render URL and test one New York address.
 
 The app uses official public sources at request time. No API keys are required.
+
+If you want private metrics in production, set `METRICS_TOKEN` in Render before launch. Without it, `/api/metrics` only exposes aggregate counts, but it is publicly readable.
 
 ### Other hosts
 

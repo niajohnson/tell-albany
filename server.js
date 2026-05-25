@@ -6,6 +6,8 @@ const { URL } = require("node:url");
 const HOST = process.env.HOST || "0.0.0.0";
 const PORT = process.env.PORT || 4173;
 const PUBLIC_DIR = path.join(__dirname, "public");
+const METRICS_FILE = process.env.METRICS_FILE || path.join(__dirname, "data", "metrics.json");
+const METRICS_TOKEN = process.env.METRICS_TOKEN || "";
 
 const ASSEMBLY_EMAIL_URL = "https://nyassembly.gov/mem/email/";
 const BILL_URL = "https://nyassembly.gov/leg/?Actions=Y&Memo=Y&Summary=Y&bn=A01466&default_fld=&leg_video=&term=2025";
@@ -40,6 +42,14 @@ const reelectionCache = new Map();
 const phoneCache = new Map();
 const suggestionCache = new Map();
 const rateLimitBuckets = new Map();
+let metricsLoaded = false;
+let metricsWriteQueue = Promise.resolve();
+const metrics = {
+  pageVisits: 0,
+  lookupsCompleted: 0,
+  startedAt: new Date().toISOString(),
+  updatedAt: null,
+};
 
 const mimeTypes = {
   ".html": "text/html; charset=utf-8",
@@ -55,6 +65,63 @@ function sendJson(res, status, data) {
     "cache-control": "no-store",
   });
   res.end(JSON.stringify(data));
+}
+
+async function loadMetrics() {
+  if (metricsLoaded) return;
+
+  try {
+    const stored = JSON.parse(await fs.readFile(METRICS_FILE, "utf8"));
+    metrics.pageVisits = Number(stored.pageVisits) || 0;
+    metrics.lookupsCompleted = Number(stored.lookupsCompleted) || 0;
+    metrics.startedAt = stored.startedAt || metrics.startedAt;
+    metrics.updatedAt = stored.updatedAt || null;
+  } catch (error) {
+    if (error.code !== "ENOENT") console.error("Could not read metrics file", error);
+  }
+
+  metricsLoaded = true;
+}
+
+async function saveMetrics() {
+  await fs.mkdir(path.dirname(METRICS_FILE), { recursive: true });
+  await fs.writeFile(`${METRICS_FILE}.tmp`, `${JSON.stringify(metrics, null, 2)}\n`);
+  await fs.rename(`${METRICS_FILE}.tmp`, METRICS_FILE);
+}
+
+function recordMetric(name) {
+  if (!Object.hasOwn(metrics, name)) return metricsWriteQueue;
+
+  metricsWriteQueue = metricsWriteQueue
+    .then(async () => {
+      await loadMetrics();
+      metrics[name] += 1;
+      metrics.updatedAt = new Date().toISOString();
+      await saveMetrics();
+    })
+    .catch((error) => {
+      console.error("Could not record privacy-friendly metric", error);
+    });
+
+  return metricsWriteQueue;
+}
+
+async function metricsSnapshot() {
+  await metricsWriteQueue;
+  await loadMetrics();
+  return {
+    pageVisits: metrics.pageVisits,
+    lookupsCompleted: metrics.lookupsCompleted,
+    startedAt: metrics.startedAt,
+    updatedAt: metrics.updatedAt,
+    privacy: "Aggregate counters only. No names, addresses, IPs, or per-person history are stored.",
+  };
+}
+
+function canViewMetrics(req, url) {
+  if (!METRICS_TOKEN) return true;
+  const auth = req.headers.authorization || "";
+  return url.searchParams.get("token") === METRICS_TOKEN || auth === `Bearer ${METRICS_TOKEN}`;
 }
 
 function sendRateLimit(res, retryAfterSeconds) {
@@ -906,6 +973,8 @@ async function handleLookup(req, res, url) {
     senderName,
   });
 
+  await recordMetric("lookupsCompleted");
+
   sendJson(res, 200, {
     district: districtResult.district,
     matchedAddress: districtResult.matchedAddress,
@@ -945,6 +1014,7 @@ async function handleSuggest(req, res, url) {
 }
 
 async function serveStatic(req, res, url) {
+  const shouldCountPageVisit = req.method === "GET" && (url.pathname === "/" || url.pathname === "/index.html");
   let filePath = path.normalize(decodeURIComponent(url.pathname));
   if (filePath === "/") filePath = "/index.html";
   if (filePath.includes("..")) {
@@ -958,6 +1028,7 @@ async function serveStatic(req, res, url) {
     const ext = path.extname(absolutePath);
     res.writeHead(200, { "content-type": mimeTypes[ext] || "application/octet-stream" });
     res.end(file);
+    if (shouldCountPageVisit) void recordMetric("pageVisits");
   } catch {
     res.writeHead(404, { "content-type": "text/plain; charset=utf-8" });
     res.end("Not found");
@@ -968,6 +1039,10 @@ const server = http.createServer(async (req, res) => {
   const url = new URL(req.url, `http://${req.headers.host}`);
   try {
     if (url.pathname === "/healthz") return sendJson(res, 200, { ok: true });
+    if (url.pathname === "/api/metrics") {
+      if (!canViewMetrics(req, url)) return sendJson(res, 401, { error: "Metrics token required." });
+      return sendJson(res, 200, await metricsSnapshot());
+    }
     if (url.pathname === "/api/suggest") return await handleSuggest(req, res, url);
     if (url.pathname === "/api/lookup") return await handleLookup(req, res, url);
     return await serveStatic(req, res, url);
