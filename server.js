@@ -11,6 +11,8 @@ const ASSEMBLY_EMAIL_URL = "https://nyassembly.gov/mem/email/";
 const BILL_URL = "https://nyassembly.gov/leg/?Actions=Y&Memo=Y&Summary=Y&bn=A01466&default_fld=&leg_video=&term=2025";
 const HEALTH_COMMITTEE_URL = "https://www.nyassembly.gov/comm/?id=19&sec=mem";
 const ASSEMBLY_LEADERSHIP_URL = "https://www.assembly.ny.gov/mem/leadership/";
+const BOE_WHO_FILED_URL = "https://publicreporting.elections.ny.gov/WhoFiled/WhoFiled";
+const BOE_WHO_FILED_DATA_URL = "https://publicreporting.elections.ny.gov/WhoFiled/BindWhoFiledData/";
 const CENSUS_URL = "https://geocoding.geo.census.gov/geocoder/geographies/onelineaddress";
 const ADDRESS_SUGGEST_URL = "https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/suggest";
 const NY_SEARCH_EXTENT = "-79.7624,40.4774,-71.7517,45.0153";
@@ -34,6 +36,7 @@ let contactsCache;
 let billCache;
 let healthCommitteeCache;
 let leadershipCache;
+const reelectionCache = new Map();
 const phoneCache = new Map();
 const suggestionCache = new Map();
 const rateLimitBuckets = new Map();
@@ -396,6 +399,93 @@ async function getAssemblyLeadership() {
 
   leadershipCache = { fetchedAt: Date.now(), members };
   return members;
+}
+
+function normalizeWebsite(value = "") {
+  const trimmed = value.trim();
+  if (!trimmed) return "";
+  if (/^https?:\/\//i.test(trimmed)) return trimmed;
+  return `https://${trimmed}`;
+}
+
+function candidateNameFromRow(row) {
+  return [row[4], row[5], row[6], row[7]].filter(Boolean).join(" ").replace(/\s+/g, " ").trim();
+}
+
+function parseWhoFiledRows(data) {
+  const rows = Array.isArray(data?.aaData) ? data.aaData : Array.isArray(data?.data) ? data.data : [];
+  return rows
+    .filter((row) => Array.isArray(row) && String(row[1] || "").toLowerCase() === "member of assembly")
+    .map((row) => ({
+      office: row[1] || "",
+      district: String(Number(row[2])),
+      party: row[3] || "",
+      name: candidateNameFromRow(row),
+      status: row[8] || "",
+      websiteStatus: row[10] || "",
+      website: normalizeWebsite(row[11] || ""),
+      dateFiled: row[16] || "",
+      electionYear: row[22] || "2026",
+      electionType: row[24] || "",
+      electionDate: row[25] || "",
+    }))
+    .filter((candidate) => candidate.name && candidate.district && /^valid$/i.test(candidate.status));
+}
+
+async function fetchWhoFiledCandidates(district) {
+  const params = new URLSearchParams({
+    lstUCYear: "47",
+    lstUCElection: "2",
+    lstUCOfficeType: "4",
+    lstElectionDate: "38817",
+    lstUCCounty: "",
+    lstUCMuncipality: "",
+    lstUCOffice: "12",
+    lstUCDistrict: district || "- Select -",
+    lstUCParty: "- Select -",
+  });
+  const response = await fetch(BOE_WHO_FILED_DATA_URL, {
+    method: "POST",
+    headers: {
+      "content-type": "application/x-www-form-urlencoded; charset=UTF-8",
+      "user-agent": "NY Health Act constituent contact helper",
+      referer: BOE_WHO_FILED_URL,
+    },
+    body: params.toString(),
+  });
+  if (!response.ok) throw new Error(`NYSBOE Who Filed returned ${response.status}`);
+  return parseWhoFiledRows(await response.json());
+}
+
+async function getReelectionInfo(member, district) {
+  const cacheKey = `${district}:${nameKey(member.name)}`;
+  const cached = reelectionCache.get(cacheKey);
+  if (cached && Date.now() - cached.fetchedAt < 1000 * 60 * 60 * 6) return cached.info;
+
+  const candidates = await fetchWhoFiledCandidates(district);
+  const memberKey = nameKey(member.name);
+  const matchedCandidates = candidates.filter((candidate) => candidate.district === String(district) && nameKey(candidate.name) === memberKey);
+
+  if (matchedCandidates.length === 0) {
+    const info = null;
+    reelectionCache.set(cacheKey, { fetchedAt: Date.now(), info });
+    return info;
+  }
+
+  const website = matchedCandidates.find((candidate) => candidate.website)?.website || "";
+  const info = {
+    status: "running",
+    label: "Running in 2026",
+    sourceName: "NYSBOE Who Filed",
+    sourceUrl: BOE_WHO_FILED_URL,
+    checkedAt: new Date().toISOString(),
+    electionType: matchedCandidates[0].electionType || "Primary",
+    electionDate: matchedCandidates[0].electionDate || "06/23/2026",
+    parties: [...new Set(matchedCandidates.map((candidate) => candidate.party).filter(Boolean))],
+    website,
+  };
+  reelectionCache.set(cacheKey, { fetchedAt: Date.now(), info });
+  return info;
 }
 
 function memberRoleInfo(member, healthCommittee, leadership) {
@@ -801,7 +891,10 @@ async function handleLookup(req, res, url) {
   const status = supporterStatus(member, bill.supporters);
   const roles = memberRoleInfo(member, healthCommittee, leadership);
   const askType = askTypeFor({ status, roles });
-  const phoneInfo = await getMemberPhoneInfo(member);
+  const [phoneInfo, election] = await Promise.all([
+    getMemberPhoneInfo(member),
+    getReelectionInfo(member, districtResult.district).catch(() => null),
+  ]);
   const subject = subjectForAskType(askType);
   const body = makeDraft({
     member,
@@ -824,6 +917,7 @@ async function handleLookup(req, res, url) {
     bill,
     supporterStatus: status,
     roles,
+    election,
     askType,
     subject,
     body,
@@ -833,6 +927,7 @@ async function handleLookup(req, res, url) {
       bill: BILL_URL,
       healthCommittee: HEALTH_COMMITTEE_URL,
       leadership: ASSEMBLY_LEADERSHIP_URL,
+      elections: BOE_WHO_FILED_URL,
       district: "https://geocoding.geo.census.gov/",
     },
   });

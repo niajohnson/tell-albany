@@ -12,6 +12,8 @@ const phoneMeta = document.querySelector("#phone-meta");
 const supportBadge = document.querySelector("#support-badge");
 const roleBadges = document.querySelector("#role-badges");
 const supportChecked = document.querySelector("#support-checked");
+const campaignWebsiteRow = document.querySelector("#campaign-website-row");
+const campaignWebsite = document.querySelector("#campaign-website");
 const callLine = document.querySelector("#call-line");
 const callScript = document.querySelector("#call-script");
 const callButton = document.querySelector("#call-button");
@@ -63,6 +65,28 @@ function renderRoleBadges(roles = []) {
     badge.title = fullLabel;
     badge.setAttribute("aria-label", fullLabel);
     roleBadges.append(badge);
+  }
+}
+
+function renderElectionBadge(election) {
+  document.querySelector(".election-badge")?.remove();
+  campaignWebsiteRow.hidden = true;
+  campaignWebsite.removeAttribute("href");
+  campaignWebsite.textContent = "";
+
+  if (election?.status !== "running") return;
+
+  const badge = document.createElement("span");
+  badge.className = "election-badge";
+  badge.textContent = "Running in 2026";
+  badge.title = election.sourceName ? `Matched from ${election.sourceName}` : "Matched from NYSBOE candidate filing data";
+  badge.setAttribute("aria-label", badge.title);
+  roleBadges.after(badge);
+
+  if (election.website) {
+    campaignWebsiteRow.hidden = false;
+    campaignWebsite.href = election.website;
+    campaignWebsite.textContent = election.website.replace(/^https?:\/\//i, "").replace(/\/$/, "");
   }
 }
 
@@ -222,6 +246,7 @@ form.addEventListener("submit", async (event) => {
     supportBadge.textContent = supporterBadgeCopy(data.supporterStatus);
     supportBadge.dataset.status = data.supporterStatus;
     renderRoleBadges(data.roles);
+    renderElectionBadge(data.election);
     const checkedDate = formatCheckedDate(data.bill?.checkedAt);
     supportChecked.textContent = checkedDate ? `Support list checked ${checkedDate}` : "Support list checked from official bill page";
     callLine.hidden = !currentPhone;

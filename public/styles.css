@@ -349,6 +349,18 @@ button:disabled {
   top: 130px;
 }
 
+.rep-line:has(.election-badge) .rep-corner {
+  top: 96px;
+}
+
+.rep-line:has(.role-badges .role-badge):has(.election-badge) .rep-corner {
+  top: 130px;
+}
+
+.rep-line:has(.role-badges .role-badge:nth-child(2)):has(.election-badge) .rep-corner {
+  top: 164px;
+}
+
 .support-badge {
   min-height: 30px;
   display: inline-flex;
@@ -404,6 +416,22 @@ button:disabled {
   background: rgba(138, 97, 15, 0.1);
 }
 
+.election-badge {
+  min-height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  border: 1px solid rgba(90, 103, 100, 0.24);
+  padding: 0 10px;
+  color: var(--muted);
+  background: rgba(90, 103, 100, 0.08);
+  font-size: 0.76rem;
+  font-weight: 850;
+  text-align: right;
+  white-space: nowrap;
+}
+
 .support-checked {
   margin: -3px 0 0;
   display: inline-flex;
@@ -433,6 +461,16 @@ button:disabled {
 
 .matched-address-row {
   order: 1;
+}
+
+.campaign-website-row {
+  width: 100%;
+  order: 2;
+  text-align: right;
+}
+
+.campaign-website-row[hidden] {
+  display: none;
 }
 
 .actions {
@@ -682,6 +720,10 @@ button:disabled {
     text-align: left;
   }
 
+  .election-badge {
+    text-align: left;
+  }
+
   .rep-corner {
     justify-items: stretch;
   }
@@ -694,6 +736,11 @@ button:disabled {
     order: 1;
     margin: -2px 0 0;
     justify-self: end;
+    text-align: right;
+  }
+
+  .campaign-website-row {
+    order: 2;
     text-align: right;
   }
 

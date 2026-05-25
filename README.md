@@ -11,6 +11,7 @@ A small web app for helping New Yorkers find their State Assembly member and dra
 - Fetches the member's official Assembly contact page to find an office phone number.
 - Fetches the official Assembly bill page for A01466 to check the current action and sponsor/co-sponsor listing.
 - Fetches official Assembly Health Committee and Assembly leadership pages so the ask can match the member's role.
+- Checks the New York State Board of Elections `Who Filed` report for a candidate-specific `Running in 2026` badge and campaign website when the matched Assembly member appears in the 2026 Assembly filing data.
 - Creates an editable email draft with rotating plain-language variations so messages do not all sound identical.
 - Opens the draft in the sender's own email app with a `mailto:` link.
 - Shows branded Gmail, Outlook, and Yahoo compose links on desktop.
@@ -31,14 +32,14 @@ The draft changes based on the matched Assembly member:
 
 When a member has more than one status or role, the draft and follow-up call script combine the relevant asks. For example, a non-supporter on the Health Committee is asked to co-sponsor A1466 and move it out of committee, while a supporter in leadership is thanked for their support and asked to prioritize committee movement and a floor vote.
 
-The page also shows compact role badges for Health Committee members and Assembly leadership. If a member has more than one role, badges are stacked with the highest-priority role first. The visible badges stay short, such as `Leadership`, `Health Chair`, and `Health Committee`, while the full official role remains available as the badge label.
+The page also shows compact role badges for Health Committee members and Assembly leadership. If a member has more than one role, badges are stacked with the highest-priority role first. The visible badges stay short, such as `Leadership`, `Health Chair`, and `Health Committee`, while the full official role remains available as the badge label. A separate gray `Running in 2026` badge appears only when the matched Assembly member is also matched by name and district in NYSBOE filing data.
 
 ## User flow
 
 1. The user enters their name and New York address.
 2. Address suggestions appear after a few characters so the user can choose a real match.
 3. The app finds the Assembly district and shows the matched Assembly member.
-4. The app shows supporter status, any Health Committee or leadership badges, the matched address, district, email, and phone number.
+4. The app shows supporter status, any Health Committee or leadership badges, any matched 2026 filing badge, the matched address, district, email, and phone number.
 5. The user reviews and edits the generated email draft.
 6. The user opens the draft in their email app or, on desktop, chooses Gmail, Outlook, or Yahoo.
 7. After sending, the user can use the follow-up call script and call button.
@@ -104,5 +105,6 @@ HOST=0.0.0.0
 - A01466 bill page: `https://nyassembly.gov/leg/?Actions=Y&Memo=Y&Summary=Y&bn=A01466&default_fld=&leg_video=&term=2025`
 - Assembly Health Committee membership: `https://www.nyassembly.gov/comm/?id=19&sec=mem`
 - Assembly leadership: `https://www.assembly.ny.gov/mem/leadership/`
+- NYSBOE candidate filings: `https://publicreporting.elections.ny.gov/WhoFiled/WhoFiled`
 - District lookup: `https://geocoding.geo.census.gov/`
 - Address suggestions: `https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/suggest`
