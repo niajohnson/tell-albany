@@ -84,6 +84,13 @@ h1 {
   gap: 16px;
 }
 
+.lookup-help {
+  margin: -6px 0 0;
+  color: var(--muted);
+  font-size: 0.82rem;
+  line-height: 1.4;
+}
+
 label {
   display: grid;
   gap: 7px;
@@ -521,6 +528,7 @@ button:disabled {
 
 .learn-intro .label {
   margin-bottom: 14px;
+  color: var(--green);
 }
 
 .learn-intro h3,
